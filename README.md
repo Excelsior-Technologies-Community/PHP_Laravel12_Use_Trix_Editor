@@ -489,7 +489,7 @@ Then open:
 http://localhost:8000/trix
 ```
 
-## Output
+## Output:
 ---
 
 Trix Page:
