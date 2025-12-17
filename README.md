@@ -492,15 +492,14 @@ http://localhost:8000/trix
 ## Output:
 ---
 
-Trix Page:
+**Trix Page:**
 ```
 http://localhost:8000/trix
 ```
 <img width="1919" height="1091" alt="Screenshot 2025-12-12 181948" src="https://github.com/user-attachments/assets/f1fcf2e2-d330-4865-932c-fe0a91a5d0e1" />
 
 ---
-Post Page (Show):
-
+**Post Page (Show):**
 ```
 http://localhost:8000/posts
 ```
