@@ -509,5 +509,8 @@ http://localhost:8000/posts
 
 Now Your Project is Working Fine!
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> development
