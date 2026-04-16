@@ -11,61 +11,90 @@ class TrixController extends Controller
     // Display the Trix editor form
     public function index()
     {
-        return view('trix'); // Return the 'trix.blade.php' view
+        return view('trix'); // For creating a new post
     }
 
-    // Save post in database
+    // Save new post
     public function store(Request $request)
     {
-        // Validate input fields
         $request->validate([
-            'title' => 'required|string|max:255', // Title is required, max 255 chars
-            'body' => 'required'                  // Body content is required
+            'title' => 'required|string|max:255',
+            'body' => 'required'
         ]);
 
-        // Create a new post in the database
         Post::create([
-            'title'      => $request->title,   // Save the post title
-            'body'       => $request->body,    // Save the post body (HTML from Trix)
-            'status'     => 1,                 // Set default status as Active
-            'created_by' => Auth::id(),        // ID of logged-in user, null if not logged in
-            'updated_by' => Auth::id()         // ID of last updated by (same as created for new post)
+            'title' => $request->title,
+            'body' => $request->body,
+            'status' => 1,
+            'created_by' => Auth::id(),
+            'updated_by' => Auth::id()
         ]);
 
-        // Redirect back with a success message
-        return redirect()->back()->with('success', 'Post created successfully!');
+        return redirect()->route('trix.posts')->with('success', 'Post created successfully!');
     }
 
-    // Handle image upload from Trix editor
+    // Handle image upload from Trix
     public function upload(Request $request)
     {
-        if ($request->hasFile('file')) { // Check if a file is attached
-
-            // Get original filename with extension
+        if ($request->hasFile('file')) {
             $filenameWithExt = $request->file('file')->getClientOriginalName();
-
-            // Extract filename without extension
             $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-
-            // Get file extension
             $extension = $request->file('file')->getClientOriginalExtension();
-
-            // Create a unique filename to store
             $fileNameToStore = $filename . '_' . time() . '.' . $extension;
-
-            // Move the uploaded file to public/media folder
             $request->file('file')->move(public_path('media'), $fileNameToStore);
 
-            // Return the image URL to Trix editor
             echo asset('media/' . $fileNameToStore);
-            exit; // Stop further execution
+            exit;
         }
     }
 
-    // Display all saved posts
+    // List all posts
     public function showPosts()
     {
-        $posts = Post::all(); // Fetch all posts from the database
-        return view('posts', compact('posts')); // Return 'posts.blade.php' with data
+        $posts = Post::all();
+        return view('posts', compact('posts'));
+    }
+
+    // Delete a post
+    public function destroy($id)
+    {
+        $post = Post::findOrFail($id);
+        $post->delete();
+        return redirect()->back()->with('success', 'Post deleted successfully!');
+    }
+
+    // Edit a post
+    public function edit($id)
+    {
+        $post = Post::findOrFail($id);
+        return view('trix_edit', compact('post'));
+    }
+
+    // Update post
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'body' => 'required'
+        ]);
+
+        $post = Post::findOrFail($id);
+        $post->update([
+            'title' => $request->title,
+            'body' => $request->body,
+            'updated_by' => Auth::id()
+        ]);
+
+        return redirect()->route('trix.posts')->with('success', 'Post updated successfully!');
+    }
+
+    // Toggle post status
+    public function toggleStatus($id)
+    {
+        $post = Post::findOrFail($id);
+        $post->status = $post->status == 1 ? 0 : 1;
+        $post->save();
+
+        return redirect()->back()->with('success', 'Post status updated!');
     }
 }

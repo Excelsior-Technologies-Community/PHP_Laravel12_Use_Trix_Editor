@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Trix Editor in Laravel 12</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -12,34 +13,38 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container mt-5">
-    <h3>Trix Editor with Image Upload</h3>
+    <div class="container mt-5">
+        <h3>Trix Editor with Image Upload</h3>
 
-    <form action="{{ route('trix.store') }}" method="POST">
-        @csrf
+        <form action="{{ route('trix.store') }}" method="POST">
+            @csrf
 
-        <div class="mb-3">
-            <strong>Title:</strong>
-            <input type="text" name="title" class="form-control" placeholder="Title">
-        </div>
+            <div class="mb-3">
+                <strong>Title:</strong>
+                <input type="text" name="title" class="form-control" placeholder="Title">
+            </div>
 
-        <div class="mb-3">
-            <strong>Body:</strong>
-            <input id="x" type="hidden" name="body">
-            <trix-editor input="x" class="trix-content"></trix-editor>
-        </div>
+            <div class="mb-3">
+                <strong>Body:</strong>
+                <input id="x" type="hidden" name="body">
+                <trix-editor input="x" class="trix-content"></trix-editor>
+            </div>
 
-        <button class="btn btn-success" type="submit">Submit</button>
-    </form>
-</div>
+            <button class="btn btn-success" type="submit">Submit</button>
+            <!-- Show Posts Button -->
+            <a href="{{ route('trix.posts') }}" class="btn btn-primary">Show Posts</a>
+        </form>
+    </div>
 
-<script src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js"></script>
-<script>
-    var fileUploadURL = "{{ route('trix.upload') }}";
-</script>
-<script src="{{ asset('js/attachments.js') }}"></script>
+    <script src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js"></script>
+    <script>
+        var fileUploadURL = "{{ route('trix.upload') }}";
+    </script>
+    <script src="{{ asset('js/attachments.js') }}"></script>
 
 </body>
+
 </html>

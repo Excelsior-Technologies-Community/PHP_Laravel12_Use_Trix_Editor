@@ -7,14 +7,18 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Display the Trix editor form
-Route::get('trix', [TrixController::class, 'index']);
+// Trix post routes
+Route::get('/trix', [TrixController::class, 'index'])->name('trix.create');
+Route::post('/trix/store', [TrixController::class, 'store'])->name('trix.store');
+Route::post('/trix/upload', [TrixController::class, 'upload'])->name('trix.upload');
+Route::get('/trix/posts', [TrixController::class, 'showPosts'])->name('trix.posts');
 
-// Handle image/file uploads from Trix editor
-Route::post('trix/upload', [TrixController::class, 'upload'])->name('trix.upload');
+// Edit / Update
+Route::get('/trix/edit/{id}', [TrixController::class, 'edit'])->name('trix.edit');
+Route::put('/trix/update/{id}', [TrixController::class, 'update'])->name('trix.update');
 
-// Save the post content submitted via Trix editor
-Route::post('trix/store', [TrixController::class, 'store'])->name('trix.store');
+// Delete
+Route::delete('/trix/post/{id}', [TrixController::class, 'destroy'])->name('trix.destroy');
 
-// Display all saved posts
-Route::get('/posts', [TrixController::class, 'showPosts'])->name('posts');
+// Status toggle
+Route::patch('/trix/toggle-status/{id}', [TrixController::class, 'toggleStatus'])->name('trix.toggle');
