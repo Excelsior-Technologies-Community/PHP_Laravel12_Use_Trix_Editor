@@ -8,18 +8,16 @@ use Illuminate\Support\Facades\Auth;
 
 class TrixController extends Controller
 {
-    // Display the Trix editor form
     public function index()
     {
-        return view('trix'); // For creating a new post
+        return view('trix');
     }
 
-    // Save new post
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
-            'body' => 'required'
+            'title' => 'required|string|min:1|max:255', 
+    'body' => 'required|min:10'
         ]);
 
         Post::create([
@@ -33,29 +31,42 @@ class TrixController extends Controller
         return redirect()->route('trix.posts')->with('success', 'Post created successfully!');
     }
 
-    // Handle image upload from Trix
     public function upload(Request $request)
     {
         if ($request->hasFile('file')) {
-            $filenameWithExt = $request->file('file')->getClientOriginalName();
-            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
-            $extension = $request->file('file')->getClientOriginalExtension();
-            $fileNameToStore = $filename . '_' . time() . '.' . $extension;
-            $request->file('file')->move(public_path('media'), $fileNameToStore);
+            $request->validate([
+                'file' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+            ]);
+
+            $file = $request->file('file');
+            $fileNameToStore = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('media'), $fileNameToStore);
 
             echo asset('media/' . $fileNameToStore);
             exit;
         }
     }
 
-    // List all posts
-    public function showPosts()
+    public function showPosts(Request $request)
     {
-        $posts = Post::all();
+        $search = $request->input('search');
+
+        $posts = Post::when($search, function ($query, $search) {
+            return $query->where('title', 'like', "%{$search}%")
+                         ->orWhere('body', 'like', "%{$search}%");
+        })
+        ->latest()
+        ->paginate(5);
+
+        foreach ($posts as $post) {
+            $words = str_word_count(strip_tags($post->body));
+            $post->word_count = $words;
+            $post->read_time = ceil($words / 200);
+        }
+
         return view('posts', compact('posts'));
     }
 
-    // Delete a post
     public function destroy($id)
     {
         $post = Post::findOrFail($id);
@@ -63,19 +74,17 @@ class TrixController extends Controller
         return redirect()->back()->with('success', 'Post deleted successfully!');
     }
 
-    // Edit a post
     public function edit($id)
     {
         $post = Post::findOrFail($id);
         return view('trix_edit', compact('post'));
     }
 
-    // Update post
     public function update(Request $request, $id)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
-            'body' => 'required'
+            'title' => 'required|string|min:5|max:255',
+            'body' => 'required|min:10'
         ]);
 
         $post = Post::findOrFail($id);
@@ -88,7 +97,6 @@ class TrixController extends Controller
         return redirect()->route('trix.posts')->with('success', 'Post updated successfully!');
     }
 
-    // Toggle post status
     public function toggleStatus($id)
     {
         $post = Post::findOrFail($id);
